@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theory of Water — Dmitry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --deep: #0a1628;
+    --ocean: #0d2b45;
+    --mid: #1a4a6e;
+    --surface: #2a7da8;
+    --light: #a8d4e8;
+    --foam: #e8f4f8;
+    --white: #f5f9fc;
+    --text: #d6eaf5;
+    --accent: #5bbde4;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── CANVAS ── */
+  #water-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.35;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.6s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    color: var(--light);
+    opacity: 0;
+    animation: fadeUp 1s ease 1s forwards;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.5s forwards;
+  }
+
+  .scroll-hint span {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--surface);
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--surface), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  /* ── RESOURCES ── */
+  .resources-section {
+    position: relative;
+    z-index: 10;
+    padding: 7rem 2rem;
+    border-top: 1px solid rgba(91,189,228,0.1);
+  }
+
+  .resources-inner {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .resources-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .resources-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 300;
+    color: var(--white);
+    text-align: center;
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+  }
+
+  .resources-heading em { font-style: italic; color: var(--accent); }
+
+  .resources-sub {
+    font-size: 0.8rem;
+    color: var(--light);
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-bottom: 4rem;
+    opacity: 0.7;
+  }
+
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .resource-card {
+    display: block;
+    padding: 1.75rem 1.5rem;
+    border: 1px solid rgba(91,189,228,0.12);
+    background: rgba(13,43,69,0.4);
+    text-decoration: none;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease, border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .resource-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .resource-card:hover {
+    border-color: rgba(91,189,228,0.45);
+    background: rgba(26,74,110,0.35);
+    transform: translateY(-3px) !important;
+  }
+
+  .resource-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .resource-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--foam);
+    line-height: 1.4;
+    margin-bottom: 0.6rem;
+    display: block;
+  }
+
+  .resource-desc {
+    font-size: 0.75rem;
+    color: var(--light);
+    line-height: 1.6;
+    opacity: 0.75;
+  }
+
+  .resource-arrow {
+    display: block;
+    margin-top: 1.25rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+  }
+
+  .resource-card:hover .resource-arrow { opacity: 1; }
+
+  .resources-scroll-hint {
+    position: relative;
+    margin-top: 4rem;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  /* ── SECTION WRAPPER ── */
+  .essay-wrap {
+    position: relative;
+    z-index: 10;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 2rem 8rem;
+  }
+
+  /* ── PARAGRAPH BLOCKS ── */
+  .para-block {
+    padding: 6rem 0;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    border-bottom: 1px solid rgba(91, 189, 228, 0.1);
+  }
+
+  .para-block:last-child { border-bottom: none; }
+  .para-block.visible { opacity: 1; transform: translateY(0); }
+
+  .para-number {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  .para-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+    font-weight: 300;
+    line-height: 1.85;
+    color: var(--foam);
+  }
+
+  .para-text .highlight {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  /* ── WATER TRANSITION ── */
+  .water-transition {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    opacity: 0;
+    transform: scaleX(0.6);
+    transition: opacity 1s ease, transform 1s ease;
+    margin: 1rem 0;
+  }
+
+  .water-transition.visible {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .wave-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── STAT CALLOUT ── */
+  .stat-callout {
+    margin: 3rem 0;
+    padding: 2.5rem;
+    border-left: 2px solid var(--accent);
+    background: rgba(91, 189, 228, 0.05);
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.9s ease 0.3s, transform 0.9s ease 0.3s;
+  }
+
+  .stat-callout.visible { opacity: 1; transform: translateX(0); }
+
+  .stat-callout p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--light);
+    line-height: 1.7;
+  }
+
+  .stat-callout cite {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--surface);
+    font-style: normal;
+  }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid rgba(91, 189, 228, 0.1);
+  }
+
+  .site-footer p {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--surface);
+  }
+
+  /* ── DROPLET ── */
+  .droplet-container {
+    text-align: center;
+    padding: 2rem 0;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  .droplet-container.visible { opacity: 1; }
+
+  .droplet {
+    display: inline-block;
+    width: 60px;
+    height: 80px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50%       { opacity: 1;   transform: scaleY(1.2); }
+  }
+
+  @keyframes ripple {
+    0%   { r: 0; opacity: 0.8; }
+    100% { r: 60; opacity: 0; }
+  }
+
+  /* ── CREDITS ── */
+  .credits-section {
+    position: relative;
+    z-index: 10;
+    padding: 8rem 2rem;
+    border-top: 1px solid rgba(91, 189, 228, 0.15);
+    background: linear-gradient(to bottom, transparent, rgba(10,22,40,0.6));
+  }
+
+  .credits-inner {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .credits-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  .credits-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 3.5rem;
+  }
+
+  .credits-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .credits-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .credits-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid rgba(91, 189, 228, 0.08);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .credits-list li.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .credit-author {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 200px;
+  }
+
+  .credit-divider {
+    color: rgba(91,189,228,0.3);
+    font-size: 0.75rem;
+  }
+
+  .credit-title-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--foam);
+    line-height: 1.4;
+  }
+
+  @media (max-width: 600px) {
+    .credits-list li { flex-direction: column; gap: 0.2rem; }
+    .credit-author { min-width: unset; }
+    .credit-divider { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .para-block, .water-transition, .stat-callout, .droplet-container {
+      opacity: 1; transform: none; transition: none;
+    }
+    #water-canvas { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .para-text { font-size: 1.15rem; }
+    .essay-wrap { padding: 0 1.25rem 6rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="water-canvas"></canvas>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">A microsite by Dmitry &nbsp;·&nbsp; INT 314</p>
+  <h1 class="hero-title">Theory of<br><em>Water</em></h1>
+  <p class="hero-sub">On what we take for granted</p>
+  <div class="scroll-hint">
+    <span>Scroll for Resources</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="resources-section">
+  <div class="resources-inner">
+    <p class="resources-eyebrow">Take Action</p>
+    <h2 class="resources-heading">Learn More,<br><em>Use Less</em></h2>
+    <p class="resources-sub">Resources on water awareness, conservation, and global access</p>
+    <div class="resources-grid">
+
+      <a class="resource-card" href="https://www.epa.gov/watersense/start-saving" target="_blank" rel="noopener">
+        <span class="resource-tag">Conservation</span>
+        <span class="resource-name">WaterSense: Start Saving</span>
+        <p class="resource-desc">The EPA's practical guide to reducing household water use — with tips on fixtures, habits, and outdoor use.</p>
+        <span class="resource-arrow">Visit ↗</span>
+      </a>
+
+      <a class="resource-card" href="https://www.usgs.gov/special-topics/water-science-school/science/water-cycle" target="_blank" rel="noopener">
+        <span class="resource-tag">The Finite Cycle</span>
+        <span class="resource-name">The Water Cycle — USGS</span>
+        <p class="resource-desc">A deep look at how water has been cycling through Earth since the beginning — the science behind Simpson's point.</p>
+        <span class="resource-arrow">Visit ↗</span>
+      </a>
+
+      <a class="resource-card" href="https://www.watercalculator.org/" target="_blank" rel="noopener">
+        <span class="resource-tag">Self-Audit</span>
+        <span class="resource-name">Home Water Works Calculator</span>
+        <p class="resource-desc">Find out exactly how much water your household uses each day and where you can cut back.</p>
+        <span class="resource-arrow">Visit ↗</span>
+      </a>
+
+      <a class="resource-card" href="https://water.org/our-impact/water-crisis/" target="_blank" rel="noopener">
+        <span class="resource-tag">Global Access</span>
+        <span class="resource-name">The Global Water Crisis — Water.org</span>
+        <p class="resource-desc">771 million people lack access to clean water. This is the gap between western abundance and global reality.</p>
+        <span class="resource-arrow">Visit ↗</span>
+      </a>
+
+      <a class="resource-card" href="https://www.nrdc.org/issues/fresh-water" target="_blank" rel="noopener">
+        <span class="resource-tag">Freshwater</span>
+        <span class="resource-name">The Freshwater Crisis — NRDC</span>
+        <p class="resource-desc">What happens when freshwater sources shrink — and why it's already happening in more places than you'd think.</p>
+        <span class="resource-arrow">Visit ↗</span>
+      </a>
+
+      <a class="resource-card" href="https://www.cdcfoundation.org/blog/addressing-growing-water-crisis-us" target="_blank" rel="noopener">
+        <span class="resource-tag">Daily Habits</span>
+        <span class="resource-name">Drinking Water Facts — CDC</span>
+        <p class="resource-desc">Simple, evidence-based guidance on safe water use and building better habits around what comes out of your tap.</p>
+        <span class="resource-arrow">Visit ↗</span>
+      </a>
+
+    </div>
+    <div class="scroll-hint resources-scroll-hint">
+      <span>Scroll for Essay</span>
+      <div class="scroll-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ESSAY -->
+<main class="essay-wrap">
+
+  <!-- P1 -->
+  <div class="para-block">
+    <span class="para-number">I</span>
+    <p class="para-text">
+      I've never considered myself someone who loves water, yet my life depends on it in more ways than I would usually think about. It doesn't define my identity the way it might for someone who surfs, swims, or spends most weekends on a boat, but I can't imagine my life without it. Asking me to is like asking what life would look like without air, without the sun, without food. It's essential. And yet, every single day I drink it, shower with it, brush my teeth, wash my clothes, and do the dishes with it. So maybe I do love water, but I just never noticed.
+    </p>
+  </div>
+
+  <!-- TRANSITION 1 -->
+  <div class="water-transition" aria-hidden="true">
+    <svg class="wave-svg" viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d2b45" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#1a4a6e" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#0d2b45" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0,90 C100,40 200,140 400,90 C600,40 700,140 800,90 L800,180 L0,180 Z" fill="url(#wg1)">
+        <animate attributeName="d"
+          dur="6s" repeatCount="indefinite"
+          values="
+            M0,90 C100,40 200,140 400,90 C600,40 700,140 800,90 L800,180 L0,180 Z;
+            M0,100 C150,60 250,130 400,85 C550,40 650,130 800,100 L800,180 L0,180 Z;
+            M0,90 C100,40 200,140 400,90 C600,40 700,140 800,90 L800,180 L0,180 Z
+          "/>
+      </path>
+      <path d="M0,110 C120,70 220,150 400,100 C580,50 680,150 800,110 L800,180 L0,180 Z" fill="#2a7da8" opacity="0.15">
+        <animate attributeName="d"
+          dur="9s" repeatCount="indefinite"
+          values="
+            M0,110 C120,70 220,150 400,100 C580,50 680,150 800,110 L800,180 L0,180 Z;
+            M0,95 C100,55 250,145 400,110 C560,70 700,145 800,95 L800,180 L0,180 Z;
+            M0,110 C120,70 220,150 400,100 C580,50 680,150 800,110 L800,180 L0,180 Z
+          "/>
+      </path>
+      <!-- ripple -->
+      <circle cx="400" cy="90" r="0" fill="none" stroke="#5bbde4" stroke-width="1" opacity="0">
+        <animate attributeName="r" dur="4s" repeatCount="indefinite" values="0;60" begin="0s"/>
+        <animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0.6;0" begin="0s"/>
+      </circle>
+      <circle cx="400" cy="90" r="0" fill="none" stroke="#5bbde4" stroke-width="0.5" opacity="0">
+        <animate attributeName="r" dur="4s" repeatCount="indefinite" values="0;60" begin="2s"/>
+        <animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0.4;0" begin="2s"/>
+      </circle>
+    </svg>
+  </div>
+
+  <!-- P2 -->
+  <div class="para-block">
+    <span class="para-number">II</span>
+    <p class="para-text">
+      Reading the Theory of Water made something click for me. I've read this statistic before, but it's different in the way that Leanne Betasamosake Simpson says. She explains that <span class="highlight">the water on Earth right now is all the water we will ever have.</span> Every drop we use has been cycling through the planet since the beginning. The way the author framed this idea allowed me to understand that water isn't this infinite resource that we can continue to use and waste. Water is a finite system that we are merely borrowing from, and this comes with responsibilities.
+    </p>
+  </div>
+
+  <!-- TRANSITION 2 -->
+  <div class="water-transition" aria-hidden="true">
+    <svg class="wave-svg" viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,80 C200,30 300,150 500,80 C700,10 750,150 800,80 L800,180 L0,180 Z" fill="#1a4a6e" opacity="0.4">
+        <animate attributeName="d"
+          dur="7s" repeatCount="indefinite"
+          values="
+            M0,80 C200,30 300,150 500,80 C700,10 750,150 800,80 L800,180 L0,180 Z;
+            M0,100 C180,50 320,140 500,95 C680,50 760,140 800,100 L800,180 L0,180 Z;
+            M0,80 C200,30 300,150 500,80 C700,10 750,150 800,80 L800,180 L0,180 Z
+          "/>
+      </path>
+      <circle cx="200" cy="80" r="0" fill="none" stroke="#5bbde4" stroke-width="0.8" opacity="0">
+        <animate attributeName="r" dur="5s" repeatCount="indefinite" values="0;50" begin="1s"/>
+        <animate attributeName="opacity" dur="5s" repeatCount="indefinite" values="0.5;0" begin="1s"/>
+      </circle>
+      <circle cx="600" cy="80" r="0" fill="none" stroke="#a8d4e8" stroke-width="0.8" opacity="0">
+        <animate attributeName="r" dur="5s" repeatCount="indefinite" values="0;40" begin="3s"/>
+        <animate attributeName="opacity" dur="5s" repeatCount="indefinite" values="0.4;0" begin="3s"/>
+      </circle>
+    </svg>
+  </div>
+
+  <!-- P3 -->
+  <div class="para-block">
+    <span class="para-number">III</span>
+    <p class="para-text">
+      That idea is the basis of my own theory of water. Water is one of the most necessary things in existence, and one of the most overlooked. It's real, it's valuable, and it shows up in nearly every aspect of daily life, but most of us never take the time to understand the importance of it. The consequences of wasting it aren't immediate, so it's easy to feel like they're not our problem. In the western world especially, water gets treated like an abundance: something to use without thinking. <span class="highlight">If I held my own daily water usage up to someone living without reliable access to clean water, I'd be embarrassed.</span> But I think small choices matter. If we can build more mindful habits around water usage, those habits add up to something bigger than any one person.
+    </p>
+  </div>
+
+  <!-- TRANSITION 3 -->
+  <div class="water-transition" aria-hidden="true">
+    <svg class="wave-svg" viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,90 C133,50 266,130 400,90 C534,50 666,130 800,90 L800,180 L0,180 Z" fill="#0d2b45" opacity="0.7">
+        <animate attributeName="d"
+          dur="8s" repeatCount="indefinite"
+          values="
+            M0,90 C133,50 266,130 400,90 C534,50 666,130 800,90 L800,180 L0,180 Z;
+            M0,75 C150,110 280,50 400,85 C520,120 660,50 800,75 L800,180 L0,180 Z;
+            M0,90 C133,50 266,130 400,90 C534,50 666,130 800,90 L800,180 L0,180 Z
+          "/>
+      </path>
+      <path d="M0,105 C100,65 250,145 400,105 C550,65 700,145 800,105 L800,180 L0,180 Z" fill="#2a7da8" opacity="0.2">
+        <animate attributeName="d"
+          dur="5s" repeatCount="indefinite"
+          values="
+            M0,105 C100,65 250,145 400,105 C550,65 700,145 800,105 L800,180 L0,180 Z;
+            M0,90 C120,50 260,130 400,95 C540,60 680,130 800,90 L800,180 L0,180 Z;
+            M0,105 C100,65 250,145 400,105 C550,65 700,145 800,105 L800,180 L0,180 Z
+          "/>
+      </path>
+      <!-- three ripples -->
+      <circle cx="150" cy="90" r="0" fill="none" stroke="#5bbde4" stroke-width="0.7" opacity="0">
+        <animate attributeName="r" dur="4s" repeatCount="indefinite" values="0;45" begin="0s"/>
+        <animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0.5;0" begin="0s"/>
+      </circle>
+      <circle cx="400" cy="90" r="0" fill="none" stroke="#5bbde4" stroke-width="0.7" opacity="0">
+        <animate attributeName="r" dur="4s" repeatCount="indefinite" values="0;45" begin="1.3s"/>
+        <animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0.5;0" begin="1.3s"/>
+      </circle>
+      <circle cx="650" cy="90" r="0" fill="none" stroke="#5bbde4" stroke-width="0.7" opacity="0">
+        <animate attributeName="r" dur="4s" repeatCount="indefinite" values="0;45" begin="2.6s"/>
+        <animate attributeName="opacity" dur="4s" repeatCount="indefinite" values="0.5;0" begin="2.6s"/>
+      </circle>
+    </svg>
+  </div>
+
+  <!-- P4 -->
+  <div class="para-block">
+    <span class="para-number">IV</span>
+    <p class="para-text">
+      Water doesn't ask anything from us, but it needs our attention. It does what it has always done since the beginning. Because it is always there for us, it is easy to take for granted. My goal with this microsite isn't to lecture anyone or say that I figured everything out. I'm just like most people: someone who uses water every day without thinking twice about it. What I want is to encourage others to look more into what that actually means. How much we use, how much we waste, and what's at risk when we don't pay attention. <span class="highlight">I think that just looking at it is the first step toward doing something about it, and maybe I can provide that first step to others through this microsite.</span>
+    </p>
+  </div>
+
+  <!-- DROPLET -->
+  <div class="droplet-container">
+    <svg class="droplet" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30,5 C30,5 5,38 5,52 C5,66 16,75 30,75 C44,75 55,66 55,52 C55,38 30,5 30,5 Z"
+            fill="none" stroke="#5bbde4" stroke-width="1.5" opacity="0.7">
+        <animate attributeName="opacity" dur="3s" repeatCount="indefinite" values="0.4;0.9;0.4"/>
+      </path>
+      <path d="M30,20 C30,20 14,44 14,54 C14,64 21,70 30,70 C39,70 46,64 46,54 C46,44 30,20 30,20 Z"
+            fill="#1a4a6e" opacity="0.5"/>
+    </svg>
+  </div>
+
+</main>
+
+<section class="credits-section" id="credits">
+  <div class="credits-inner">
+    <p class="credits-eyebrow">Course Readings</p>
+    <h2 class="credits-title">Works That<br><em>Shaped This</em></h2>
+    <ul class="credits-list">
+      <li><span class="credit-author">Chimamanda Ngozi Adichie</span><span class="credit-divider">—</span><span class="credit-title-text">The Danger of a Single Story</span></li>
+      <li><span class="credit-author">John Oliver</span><span class="credit-divider">—</span><span class="credit-title-text">Environmental Racism</span></li>
+      <li><span class="credit-author">Hip Hop Caucus</span><span class="credit-divider">—</span><span class="credit-title-text">Trouble in the Water</span></li>
+      <li><span class="credit-author">Leanne Betasamosake Simpson</span><span class="credit-divider">—</span><span class="credit-title-text">Theory of Water</span></li>
+      <li><span class="credit-author">Patty Krawec</span><span class="credit-divider">—</span><span class="credit-title-text">The Land: Our Ancestor</span></li>
+      <li><span class="credit-author">Shortbull &amp; Tomaselli</span><span class="credit-divider">—</span><span class="credit-title-text">Lakota Nation vs. United States</span></li>
+      <li><span class="credit-author">Clare Bayley</span><span class="credit-divider">—</span><span class="credit-title-text">The Container</span></li>
+      <li><span class="credit-author">Christina Sharpe</span><span class="credit-divider">—</span><span class="credit-title-text">The Wake</span></li>
+      <li><span class="credit-author">Richard Sanders</span><span class="credit-divider">—</span><span class="credit-title-text">Leader-Ship</span></li>
+      <li><span class="credit-author">David Cordingly</span><span class="credit-divider">—</span><span class="credit-title-text">Storms, Shipwrecks, and Life at Sea</span></li>
+      <li><span class="credit-author">WIRED</span><span class="credit-divider">—</span><span class="credit-title-text">Pirate Support</span></li>
+      <li><span class="credit-author">Winona LaDuke</span><span class="credit-divider">—</span><span class="credit-title-text">To Be a Water Protector</span></li>
+      <li><span class="credit-author">Brian Friel</span><span class="credit-divider">—</span><span class="credit-title-text">Translations</span></li>
+    </ul>
+  </div>
+</section>
+
+
+
+<script>
+// ── CANVAS BACKGROUND ──
+const canvas = document.getElementById('water-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const particles = Array.from({length: 80}, () => ({
+  x: Math.random() * window.innerWidth,
+  y: Math.random() * window.innerHeight,
+  r: Math.random() * 1.5 + 0.3,
+  vx: (Math.random() - 0.5) * 0.3,
+  vy: (Math.random() - 0.5) * 0.15,
+  alpha: Math.random() * 0.5 + 0.1
+}));
+
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // deep gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0,   '#0a1628');
+  grad.addColorStop(0.5, '#0d2b45');
+  grad.addColorStop(1,   '#0a1628');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // floating particles
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(91,189,228,${p.alpha})`;
+    ctx.fill();
+  });
+
+  // slow horizontal light bands
+  const t = Date.now() / 4000;
+  for (let i = 0; i < 4; i++) {
+    const y = ((Math.sin(t + i * 1.2) * 0.5 + 0.5) * canvas.height * 0.8) + canvas.height * 0.1;
+    const lg = ctx.createLinearGradient(0, y - 60, 0, y + 60);
+    lg.addColorStop(0,   'rgba(42,125,168,0)');
+    lg.addColorStop(0.5, `rgba(42,125,168,${0.04 + i * 0.01})`);
+    lg.addColorStop(1,   'rgba(42,125,168,0)');
+    ctx.fillStyle = lg;
+    ctx.fillRect(0, y - 60, canvas.width, 120);
+  }
+
+  requestAnimationFrame(drawCanvas);
+}
+drawCanvas();
+
+// ── SCROLL OBSERVER ──
+const observed = document.querySelectorAll('.para-block, .water-transition, .stat-callout, .droplet-container');
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+observed.forEach(el => io.observe(el));
+
+// staggered resource cards
+const resourcesGrid = document.querySelector('.resources-grid');
+if (resourcesGrid) {
+  const resourceIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.resource-card').forEach((card, i) => {
+          setTimeout(() => card.classList.add('visible'), i * 100);
+        });
+        resourceIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  resourceIO.observe(resourcesGrid);
+}
+
+// staggered credits
+const creditItems = document.querySelectorAll('.credits-list li');
+const creditsIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const items = e.target.querySelectorAll('li');
+      items.forEach((item, i) => {
+        setTimeout(() => item.classList.add('visible'), i * 80);
+      });
+      creditsIO.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+const creditsList = document.querySelector('.credits-list');
+if (creditsList) creditsIO.observe(creditsList);
+</script>
+</body>
+</html>
