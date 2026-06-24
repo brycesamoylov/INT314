@@ -234,6 +234,156 @@
     animation: fadeUp 1s ease 0.3s forwards;
   }
 
+  /* ── VIDEOS ── */
+  .videos-section {
+    position: relative;
+    z-index: 10;
+    padding: 2rem 2rem 7rem;
+    border-top: 1px solid rgba(91,189,228,0.1);
+  }
+
+  .videos-inner {
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .mixtape-shell {
+    margin-top: 1.5rem;
+  }
+
+  .mixtape-toggle {
+    width: 100%;
+    border: 1px solid rgba(91,189,228,0.35);
+    background: linear-gradient(180deg, rgba(26,74,110,0.45), rgba(13,43,69,0.55));
+    color: var(--foam);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .mixtape-toggle:hover {
+    border-color: rgba(91,189,228,0.65);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(10,22,40,0.35);
+  }
+
+  .mixtape-toggle::after {
+    content: "▾";
+    color: var(--accent);
+    font-size: 0.9rem;
+    transition: transform 0.25s ease;
+  }
+
+  .videos-section.playlist-open .mixtape-toggle::after {
+    transform: rotate(180deg);
+  }
+
+  .mixtape-playlist {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-10px);
+    transition: max-height 0.8s ease, opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .videos-section.playlist-open .mixtape-playlist {
+    max-height: 6000px;
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 1rem;
+  }
+
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .video-card {
+    border: 1px solid rgba(91,189,228,0.12);
+    background: rgba(13,43,69,0.4);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease, opacity 0.45s ease;
+    opacity: 0;
+    transform: translateY(-14px);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  .video-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% -10% auto -10%;
+    height: 100px;
+    background: radial-gradient(circle at center, rgba(91,189,228,0.18), rgba(91,189,228,0));
+    pointer-events: none;
+  }
+
+  .video-card:hover {
+    border-color: rgba(91,189,228,0.45);
+    background: rgba(26,74,110,0.35);
+    transform: translateY(-2px);
+  }
+
+  .videos-section.playlist-open .video-card {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .video-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.9;
+    display: block;
+    margin-bottom: 0.7rem;
+  }
+
+  .video-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--foam);
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+
+  .video-desc {
+    font-size: 0.78rem;
+    color: var(--light);
+    line-height: 1.65;
+    opacity: 0.8;
+    min-height: 88px;
+  }
+
+  .video-link {
+    display: inline-block;
+    margin-top: 1rem;
+    text-decoration: none;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid rgba(91,189,228,0.3);
+    padding-bottom: 0.2rem;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .video-link:hover {
+    border-color: rgba(91,189,228,0.8);
+    opacity: 1;
+  }
+
   /* ── SECTION WRAPPER ── */
   .essay-wrap {
     position: relative;
@@ -291,6 +441,33 @@
   .water-transition.visible {
     opacity: 1;
     transform: scaleX(1);
+  }
+
+  .essay-photo-wrap {
+    margin: 2.5rem 0 1.25rem;
+    border: 1px solid rgba(91,189,228,0.18);
+    background: rgba(13,43,69,0.38);
+    padding: 0.65rem;
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.9s ease, transform 0.9s ease, border-color 0.25s ease;
+  }
+
+  .essay-photo-wrap.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .essay-photo-wrap:hover {
+    border-color: rgba(91,189,228,0.45);
+  }
+
+  .essay-photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 440px;
+    object-fit: cover;
   }
 
   .wave-svg {
@@ -545,8 +722,76 @@
 
     </div>
     <div class="scroll-hint resources-scroll-hint">
-      <span>Scroll for Essay</span>
+      <span>Scroll for My Audiovisual Mixtape</span>
       <div class="scroll-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section class="videos-section">
+  <div class="videos-inner">
+    <p class="resources-eyebrow">Watch</p>
+    <h2 class="resources-heading">My audiovisual<br><em>Mixtape</em></h2>
+    <p class="resources-sub">A collection of media demonstrating the importance of water. Three of these videos are titled "Water is Life", but what makes this unique is that they are all through different perspectives. Water has a completely different meaning from person to person, but all are equally important. Also included are songs, insights from First Nations Elder, Edna Manitowabi, short films demonstrating the importance of water, and the global water crisis.</p>
+    <div class="mixtape-shell">
+      <button class="mixtape-toggle" type="button" aria-expanded="false" aria-controls="mixtape-playlist">Open My Water Playlist</button>
+      <div class="mixtape-playlist" id="mixtape-playlist">
+        <div class="videos-grid">
+          <div class="video-card" style="--i:0">
+            <span class="video-label">Current I</span>
+            <h3 class="video-title">Watermark Official Trailer 1 (2014) - Documentary HD</h3>
+            <p class="video-desc">Beautifully weaving together diverse stories from around the globe, Watermark shows in stunning detail humanity's relationship with water through the ages and expresses the magnitude of our need for this rapidly depleting resource. By showing the various roles water plays in all of our lives, this breath-taking and haunting documentary creates a vivid portrait of our world and illustrates the magnificent force of nature that is vanishing before our eyes.</p>
+            <a class="video-link" href="https://youtu.be/5itwFG1euuo?si=AXsgHtCw7p6CeCXS" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:1">
+            <span class="video-label">Current II</span>
+            <h3 class="video-title">Water is Life: Don't Undermine it.</h3>
+            <p class="video-desc">This vibrant animation from The Gaia Foundation and animator Ben Pearce takes us on two very different journeys through the water cycle. One shows the life-giving nature of water for everything from forests to frogs. The other reveals the ways in which mining is damaging the water cycle, putting life itself in jeopardy.</p>
+            <a class="video-link" href="https://youtu.be/kIpQCyioYOM?si=ui4qOimeKadXeTBr" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:2">
+            <span class="video-label">Current III</span>
+            <h3 class="video-title">Water is Life Documentary</h3>
+            <p class="video-desc">The documentary film "Water is Life" was made by DACC students in collaboration with the Learning Action Buffet with funding from Rutgers University. This film is about environmental equity on the borderland and focuses on the issue of water scarcity.</p>
+            <a class="video-link" href="https://youtu.be/piLY-L8WonM?si=hFJ5YQvSWeT8J1MQ" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:3">
+            <span class="video-label">Current IV</span>
+            <h3 class="video-title">Water Is Life (feat. Oliver Enjady) - Official Music Video</h3>
+            <p class="video-desc">This song/music video is based on a conversation with Mescalero Apache elder Oliver R Enjady. Lyla was asked by the Architectural League of New York to write a song or poem about southern New Mexico water issues. But her people are not from that area so she did not feel right speaking on the issue. Oliver gave his perspective, rooted in traditional Mescalero knowledge and his personal observations. A lot of the lyrics from this song are verbatim his words and his message to all of us about how to re-understand water. We have been told by other elders that we need to change the way the world thinks about food and water if we are to survive and thrive. We don't understand how fragile and precarious our civilization is. Two days without water and our whole society would start to unravel. With depleted ground water sources, unclean rivers and streams, and dwindling springs, we are all having to get back to basics and honor just how precious water is. We cannot take her for granted anymore. We love you all and may this song be a prayer for all waters and the life that depend on them, around the world.</p>
+            <a class="video-link" href="https://youtu.be/KfX0tTrSRG0?si=3GLKqZJuLgfjV3B3" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:4">
+            <span class="video-label">Current V</span>
+            <h3 class="video-title">Sing The Water Song</h3>
+            <p class="video-desc">This song was written by Irene Wawatie Jerome for Grandfather William Commanda's 2002 Circle of All Nations gathering. It is recorded with permission from the Wawatie and Commanda families and the Circle of All Nations Foundation and the Elders in Canada. This Algonquin Water Song expresses loving gratitude for the water and raises the consciousness and connection of women with Mother Nature's greatest gift. The song is easy to learn, and our hope is that millions of women will sing it, raising their own connection and awareness of the water they interact with daily even in the shower or at the sink. Sing it 4 times, facing each of the 4 Directions. We believe this is a powerful step to change, leading to both a spiritual as well as environmental shift on our planet.</p>
+            <a class="video-link" href="https://youtu.be/KC2FHciQ0sU?si=ANIcX0fybJHSWT2X" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:5">
+            <span class="video-label">Current VI</span>
+            <h3 class="video-title">Water Teaching with Edna Manitowabi</h3>
+            <p class="video-desc">The plants, four-leggeds, insects, flyers, fish, all life on this earth relies on water, including us two-leggeds. First Nations Elder, Edna Manitowabi, shares traditional teachings about the importance and sacredness of water. Visit wabano.com/ to learn more!</p>
+            <a class="video-link" href="https://youtu.be/lxmUjpkgnBw?si=dFQ6BZfILAx0KaSC" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:6">
+            <span class="video-label">Current VII</span>
+            <h3 class="video-title">The Importance of Water - Short Film</h3>
+            <p class="video-desc">One young man soon finds out that things should never be taken for granted, even something like water, an easily retrievable source.</p>
+            <a class="video-link" href="https://youtu.be/_EhgUVij-24?si=phgZVkk4orBBmIW3" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+          <div class="video-card" style="--i:7">
+            <span class="video-label">Current VIII</span>
+            <h3 class="video-title">Explained | World's Water Crisis | FULL EPISODE | Netflix</h3>
+            <p class="video-desc">The global water crisis is at an inflection point. How do we price our most valuable resource, while also ensuring access to it as a human right?</p>
+            <a class="video-link" href="https://youtu.be/C65iqOSCZOY?si=g7iLmme0Y-aMeQ7O" target="_blank" rel="noopener">Watch on YouTube ↗</a>
+          </div>
+        </div>
+        <div class="scroll-hint resources-scroll-hint">
+          <span>Scroll for Essay</span>
+          <div class="scroll-line"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -554,11 +799,15 @@
 <!-- ESSAY -->
 <main class="essay-wrap">
 
+  <div class="essay-photo-wrap">
+    <img class="essay-photo" src="water uses.avif" alt="Water use in daily life">
+  </div>
+
   <!-- P1 -->
   <div class="para-block">
     <span class="para-number">I</span>
     <p class="para-text">
-      I've never considered myself someone who loves water, yet my life depends on it in more ways than I would usually think about. It doesn't define my identity the way it might for someone who surfs, swims, or spends most weekends on a boat, but I can't imagine my life without it. Asking me to is like asking what life would look like without air, without the sun, without food. It's essential. And yet, every single day I drink it, shower with it, brush my teeth, wash my clothes, and do the dishes with it. So maybe I do love water, but I just never noticed.
+      I've never considered myself someone who loves water, yet my life depends on it in so many more ways than I would usually think about. It doesn't define my identity the way it might for someone who surfs, swims, or spends most weekends on a boat, but I can't imagine my life without it. Asking me to is like asking me what life would be like without air. Without the sun. Without Food. It's essential. But every single day I drink it, shower with it, brush my teeth, wash my clothes, and do the dishes with it. So maybe I do love water, but I just never noticed.
     </p>
   </div>
 
@@ -602,11 +851,15 @@
     </svg>
   </div>
 
+  <div class="essay-photo-wrap">
+    <img class="essay-photo" src="kid with plastic.avif" alt="Kid with plastic containers and water access challenge">
+  </div>
+
   <!-- P2 -->
   <div class="para-block">
     <span class="para-number">II</span>
     <p class="para-text">
-      Reading the Theory of Water made something click for me. I've read this statistic before, but it's different in the way that Leanne Betasamosake Simpson says. She explains that <span class="highlight">the water on Earth right now is all the water we will ever have.</span> Every drop we use has been cycling through the planet since the beginning. The way the author framed this idea allowed me to understand that water isn't this infinite resource that we can continue to use and waste. Water is a finite system that we are merely borrowing from, and this comes with responsibilities.
+      Reading the Theory of Water made something click for me. I've read this statistic before, but it's different in the way that Leanne Betasamosake Simpson, a Mississauga Nishnaabeg scholar and writer, says it. She explains that <span class="highlight">the water on Earth right now is all the water we will ever have.</span> Every drop we use has been cycling through the planet since the beginning. The way the author framed this idea allowed me to understand that water isn't this infinite resource that we can continue to use and waste. Water is a finite system that we are merely borrowing from, and this comes with responsibilities.
     </p>
   </div>
 
@@ -633,11 +886,15 @@
     </svg>
   </div>
 
+  <div class="essay-photo-wrap">
+    <img class="essay-photo" src="woman carrying water dry area.avif" alt="Woman carrying water in a dry area">
+  </div>
+
   <!-- P3 -->
   <div class="para-block">
     <span class="para-number">III</span>
     <p class="para-text">
-      That idea is the basis of my own theory of water. Water is one of the most necessary things in existence, and one of the most overlooked. It's real, it's valuable, and it shows up in nearly every aspect of daily life, but most of us never take the time to understand the importance of it. The consequences of wasting it aren't immediate, so it's easy to feel like they're not our problem. In the western world especially, water gets treated like an abundance: something to use without thinking. <span class="highlight">If I held my own daily water usage up to someone living without reliable access to clean water, I'd be embarrassed.</span> But I think small choices matter. If we can build more mindful habits around water usage, those habits add up to something bigger than any one person.
+      That idea is the basis of my own theory of water. Water is one of the most necessary things in existence, and one of the most overlooked. It's real, it's valuable, and it shows up in nearly every aspect of daily life, but most of us never take the time to understand the importance of it. I think a major reason for that is due to the story we have been told about water. Chimamanda Ngozi Adichie says that when you only hear one version of something, it is more difficult for us to see anything other than that version. We become more stubborn and less open-minded to someone else's story. In the western world, the story is one of abundance. Something that never ends. Something that will always come out of the tap, be there to drink, fall from the shower, and be clean of dirt and bacteria. When this is our version, it will take us extra time and effort to understand the version that is happening in other parts of the world. The consequences of wasting it aren't immediate, so it's easy to feel like they're not our problem. <span class="highlight">If I held my own daily water usage up to someone living without reliable access to clean water, I'd be embarrassed.</span> But I think small choices matter. If we can build more mindful habits around water usage, those habits add up to something bigger than any one person.
     </p>
   </div>
 
@@ -678,11 +935,27 @@
     </svg>
   </div>
 
+  <div class="essay-photo-wrap">
+    <img class="essay-photo" src="water dirty hands.avif" alt="Dirty hands touching water">
+  </div>
+
   <!-- P4 -->
   <div class="para-block">
     <span class="para-number">IV</span>
     <p class="para-text">
-      Water doesn't ask anything from us, but it needs our attention. It does what it has always done since the beginning. Because it is always there for us, it is easy to take for granted. My goal with this microsite isn't to lecture anyone or say that I figured everything out. I'm just like most people: someone who uses water every day without thinking twice about it. What I want is to encourage others to look more into what that actually means. How much we use, how much we waste, and what's at risk when we don't pay attention. <span class="highlight">I think that just looking at it is the first step toward doing something about it, and maybe I can provide that first step to others through this microsite.</span>
+      Winona LaDuke says that water is worth protecting, no matter the cost. Treat it not like a resource, but a relative. The way she framed this topic really resonated with me. What if water was my family? Would I treat it differently? Patty Krawec discusses a similar idea in The Land. She says that land and water aren't just there to be used. They are something that we belong to. This idea never even crossed my mind before this course. I never would have thought to hold water to the standard of a living being, not an object, but it helped me understand what water means. It makes it much easier to change bad habits, like leaving the sink on when brushing my teeth or letting the shower run for minutes before getting warm.
+    </p>
+  </div>
+
+  <div class="essay-photo-wrap">
+    <img class="essay-photo" src="water wasted.avif" alt="Water being wasted">
+  </div>
+
+  <!-- P5 -->
+  <div class="para-block">
+    <span class="para-number">V</span>
+    <p class="para-text">
+      Water doesn't ask anything from us, but it needs our attention. It does what it has always done since the beginning. Because it is always there for us, it is easy to take for granted. My goal with this microsite isn't to lecture anyone or say that I figured everything out. I'm just like most people, someone who uses water every day without thinking twice about it. What I want is to encourage others to look more into what that actually means. How much we use, how much we waste, and what's at risk when we don't pay attention. <span class="highlight">I think that just looking at it is the first step toward doing something about it, and maybe I can provide that first step to others through this microsite.</span>
     </p>
   </div>
 
@@ -786,7 +1059,7 @@ function drawCanvas() {
 drawCanvas();
 
 // ── SCROLL OBSERVER ──
-const observed = document.querySelectorAll('.para-block, .water-transition, .stat-callout, .droplet-container');
+const observed = document.querySelectorAll('.para-block, .water-transition, .essay-photo-wrap, .stat-callout, .droplet-container');
 
 const io = new IntersectionObserver((entries) => {
   entries.forEach(e => {
@@ -830,6 +1103,17 @@ const creditsIO = new IntersectionObserver((entries) => {
 
 const creditsList = document.querySelector('.credits-list');
 if (creditsList) creditsIO.observe(creditsList);
+
+// mixtape playlist toggle
+const videosSection = document.querySelector('.videos-section');
+const mixtapeToggle = document.querySelector('.mixtape-toggle');
+if (videosSection && mixtapeToggle) {
+  mixtapeToggle.addEventListener('click', () => {
+    const isOpen = videosSection.classList.toggle('playlist-open');
+    mixtapeToggle.setAttribute('aria-expanded', String(isOpen));
+    mixtapeToggle.textContent = isOpen ? 'Hide My Water Playlist' : 'Open My Water Playlist';
+  });
+}
 </script>
 </body>
 </html>
